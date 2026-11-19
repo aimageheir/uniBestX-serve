@@ -4,3 +4,11 @@ spring:
     username: ${DB_USER:chenqi}
     password: ${DB_PASSWORD:1234qwer}
     driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST:101.43.51.47}
+      port: ${REDIS_PORT:6379}
+      username: ${REDIS_USERNAME:chenqi}
+      password: ${REDIS_PASSWORD:1234qwer}
+      database: ${REDIS_DATABASE:0}
+      timeout: 3s

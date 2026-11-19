@@ -9,18 +9,19 @@ import java.nio.charset.StandardCharsets;
 public final class JwtUtil {
 
     private static final String DEFAULT_SECRET = "unibestx-serve-default-secret";
-    private static final long EXPIRE_HOURS = 24;
+    private static final long EXPIRE_HOURS = 2;
+    public static final long EXPIRE_SECONDS = EXPIRE_HOURS * 60 * 60;
 
     private JwtUtil() {
     }
 
-    public static String generate(String username) {
-        return generate(username, DEFAULT_SECRET);
+    public static String generate(Long userId) {
+        return generate(userId, DEFAULT_SECRET);
     }
 
-    public static String generate(String username, String secret) {
+    public static String generate(Long userId, String secret) {
         return JWT.create()
-                .setPayload("sub", username)
+                .setPayload("sub", String.valueOf(userId))
                 .setPayload("exp", DateUtil.offsetHour(DateUtil.date(), (int) EXPIRE_HOURS))
                 .setKey(secret.getBytes(StandardCharsets.UTF_8))
                 .sign();
@@ -33,7 +34,7 @@ public final class JwtUtil {
         return JWT.of(token).setKey(secret.getBytes(StandardCharsets.UTF_8)).verify();
     }
 
-    public static String getUsername(String token) {
-        return String.valueOf(JWTUtil.parseToken(token).getPayload("sub"));
+    public static Long getUserId(String token) {
+        return Long.valueOf(String.valueOf(JWTUtil.parseToken(token).getPayload("sub")));
     }
 }

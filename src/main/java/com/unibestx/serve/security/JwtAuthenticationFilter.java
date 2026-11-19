@@ -28,9 +28,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith(PREFIX)) {
             String token = header.substring(PREFIX.length());
             if (JwtUtil.verify(token, SECRET)) {
-                String username = JwtUtil.getUsername(token);
+                Long userId = JwtUtil.getUserId(token);
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, List.of());
+                        new UsernamePasswordAuthenticationToken(userId, null, List.of());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }

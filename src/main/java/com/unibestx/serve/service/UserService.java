@@ -8,9 +8,15 @@ public interface UserService {
 
     User getById(Long id);
 
+    User findById(Long id);
+
     List<User> list(String username);
 
     User create(User user);
+
+    User register(User user);
+
+    User login(String username, String password);
 
     User update(User user);
 
