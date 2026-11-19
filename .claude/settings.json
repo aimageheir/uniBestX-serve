@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn -q dependency:tree -Dincludes='*jackson*')",
+      "Bash(mvn dependency:tree)"
+    ]
+  }
+}

@@ -1,9 +1,12 @@
+# 服务配置
 server:
-  port: 8080
+  port: 8094
 
 spring:
   profiles:
     active: dev
+  jackson:
+    date-format: "yyyy-MM-dd HH:mm:ss"
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml

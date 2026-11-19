@@ -7,7 +7,7 @@ import com.unibestx.serve.dto.RefreshTokenDTO;
 import com.unibestx.serve.dto.UserCreateDTO;
 import com.unibestx.serve.entity.User;
 import com.unibestx.serve.exception.BusinessException;
-import com.unibestx.serve.result.Result;
+import com.unibestx.serve.result.ResultCode;
 import com.unibestx.serve.service.TokenService;
 import com.unibestx.serve.service.UserService;
 import com.unibestx.serve.util.JwtUtil;
@@ -31,31 +31,30 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public Result<UserVO> register(@RequestBody UserCreateDTO dto) {
+    public UserVO register(@RequestBody UserCreateDTO dto) {
         User user = userService.register(UserConvert.toEntity(dto));
-        return Result.ok(UserConvert.toVO(user));
+        return UserConvert.toVO(user);
     }
 
     @PostMapping("/login")
-    public Result<LoginVO> login(@RequestBody LoginDTO dto) {
+    public LoginVO login(@RequestBody LoginDTO dto) {
         User user = userService.login(dto.getUsername(), dto.getPassword());
-        return Result.ok(issueTokens(user));
+        return issueTokens(user);
     }
 
     @PostMapping("/refresh")
-    public Result<LoginVO> refresh(@RequestBody RefreshTokenDTO dto) {
+    public LoginVO refresh(@RequestBody RefreshTokenDTO dto) {
         Long userId = tokenService.consumeRefreshToken(dto.getRefreshToken());
         User user = userId == null ? null : userService.findById(userId);
         if (user == null) {
-            throw new BusinessException(401, "登录已过期，请重新登录");
+            throw new BusinessException(ResultCode.UNAUTHORIZED.getCode(), "登录已过期，请重新登录");
         }
-        return Result.ok(issueTokens(user));
+        return issueTokens(user);
     }
 
     @PostMapping("/logout")
-    public Result<Void> logout(@RequestBody RefreshTokenDTO dto) {
+    public void logout(@RequestBody RefreshTokenDTO dto) {
         tokenService.revoke(dto.getRefreshToken());
-        return Result.ok();
     }
 
     private LoginVO issueTokens(User user) {
