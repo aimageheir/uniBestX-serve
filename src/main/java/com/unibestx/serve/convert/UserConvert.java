@@ -19,6 +19,8 @@ public final class UserConvert {
         UserVO vo = new UserVO();
         vo.setId(user.getId());
         vo.setUsername(user.getUsername());
+        vo.setPhone(user.getPhone());
+        vo.setAvatar(user.getAvatar());
         vo.setCreateTime(user.getCreateTime());
         vo.setUpdateTime(user.getUpdateTime());
         return vo;
@@ -32,11 +34,15 @@ public final class UserConvert {
         SysUser user = new SysUser();
         user.setUsername(dto.getUsername());
         user.setPassword(dto.getPassword());
+        user.setPhone(dto.getPhone());
+        user.setAvatar(dto.getAvatar());
         return user;
     }
 
     public static void apply(UserUpdateDTO dto, SysUser user) {
         user.setUsername(dto.getUsername());
         user.setPassword(dto.getPassword());
+        user.setPhone(dto.getPhone());
+        user.setAvatar(dto.getAvatar());
     }
 }

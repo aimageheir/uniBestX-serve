@@ -81,6 +81,13 @@ public class UserServiceImpl implements UserService {
         } else {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+        // 手机号、头像为可选字段：不传（null）保持原值，传空串表示清空
+        if (user.getPhone() == null) {
+            user.setPhone(existing.getPhone());
+        }
+        if (user.getAvatar() == null) {
+            user.setAvatar(existing.getAvatar());
+        }
         userMapper.updateUser(user);
         return userMapper.selectUserById(user.getId());
     }

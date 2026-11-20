@@ -12,4 +12,10 @@ public class UserCreateDTO {
 
     @Schema(description = "密码", example = "123456")
     private String password;
+
+    @Schema(description = "手机号", example = "13800138000")
+    private String phone;
+
+    @Schema(description = "头像地址", example = "https://example.com/avatar.png")
+    private String avatar;
 }

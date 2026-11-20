@@ -22,6 +22,12 @@ public class SysUser {
     private String username;
     private String password;
 
+    /** 手机号 */
+    private String phone;
+
+    /** 头像地址 */
+    private String avatar;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 

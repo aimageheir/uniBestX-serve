@@ -7,13 +7,15 @@
         <id column="id" property="id"/>
         <result column="username" property="username"/>
         <result column="password" property="password"/>
+        <result column="phone" property="phone"/>
+        <result column="avatar" property="avatar"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="deleted" property="deleted"/>
     </resultMap>
 
     <sql id="BaseColumns">
-        id, username, password, create_time, update_time, deleted
+        id, username, password, phone, avatar, create_time, update_time, deleted
     </sql>
 
     <select id="selectUserById" resultMap="BaseResultMap">
@@ -44,14 +46,16 @@
     </select>
 
     <insert id="insertUser" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-        INSERT INTO sys_user (username, password, create_time, update_time, deleted)
-        VALUES (#{username}, #{password}, #{createTime}, #{updateTime}, 0)
+        INSERT INTO sys_user (username, password, phone, avatar, create_time, update_time, deleted)
+        VALUES (#{username}, #{password}, #{phone}, #{avatar}, #{createTime}, #{updateTime}, 0)
     </insert>
 
     <update id="updateUser">
         UPDATE sys_user
         SET username    = #{username},
             password    = #{password},
+            phone       = #{phone},
+            avatar      = #{avatar},
             update_time = #{updateTime}
         WHERE id = #{id}
         AND deleted = 0

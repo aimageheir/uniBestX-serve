@@ -19,6 +19,12 @@ public class UserVO {
     @Schema(description = "用户名", example = "zhangsan")
     private String username;
 
+    @Schema(description = "手机号", example = "13800138000")
+    private String phone;
+
+    @Schema(description = "头像地址", example = "https://example.com/avatar.png")
+    private String avatar;
+
     @Schema(description = "创建时间", example = "2026-11-20 10:00:00")
     private LocalDateTime createTime;
 
