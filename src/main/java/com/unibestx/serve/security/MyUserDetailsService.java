@@ -1,6 +1,6 @@
 package com.unibestx.serve.security;
 
-import com.unibestx.serve.entity.User;
+import com.unibestx.serve.entity.SysUser;
 import com.unibestx.serve.mapper.UserMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +20,7 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userMapper.selectByUsername(username);
+        SysUser user = userMapper.selectByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("用户不存在: " + username);
         }

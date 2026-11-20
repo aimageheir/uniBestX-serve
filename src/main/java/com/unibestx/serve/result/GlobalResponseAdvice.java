@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.Map;
+
 /**
  * 统一响应包装：把 Controller 返回的业务对象包装为 {@link Result}，并同步 HTTP 状态码。
  * <p>
@@ -47,6 +49,17 @@ public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request,
                                   ServerHttpResponse response) {
+        // Swagger 的 /v3/api-docs 返回的是 OpenAPI 规范本身，包装后会破坏文档，直接放行
+        if (isApiDocsRequest(request)) {
+            return body;
+        }
+        // 容器错误页（异常发生在过滤器等 MVC 之外时转发到 /error），转成失败响应，
+        // 不能按普通业务对象包装，否则会出现 code=200、message=成功 的假成功
+        if (isErrorRequest(request)) {
+            int status = errorStatus(body);
+            response.setStatusCode(ResultCode.httpStatusOf(status));
+            return Result.fail(status, errorMessage(body));
+        }
         // ResponseEntity 的返回类型由使用者自行控制状态码和响应头，这里不再覆盖
         boolean responseEntity = isResponseEntity(returnType);
         // 已包装的结果直接透传，同时把 body 的 code 同步到 HTTP 状态码
@@ -80,5 +93,64 @@ public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
      */
     private boolean isResponseEntity(MethodParameter returnType) {
         return ResponseEntity.class.isAssignableFrom(returnType.getParameterType());
+    }
+
+    /**
+     * 判断是否为 Swagger/OpenAPI 文档请求。
+     */
+    private boolean isApiDocsRequest(ServerHttpRequest request) {
+        if (request == null || request.getURI() == null) {
+            return false;
+        }
+        String path = request.getURI().getPath();
+        return path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui");
+    }
+
+    /**
+     * 判断是否为容器错误转发请求。
+     */
+    private boolean isErrorRequest(ServerHttpRequest request) {
+        if (request == null || request.getURI() == null) {
+            return false;
+        }
+        String path = request.getURI().getPath();
+        return "/error".equals(path) || path.startsWith("/error/");
+    }
+
+    /**
+     * 从 Spring Boot 错误页响应体里取 HTTP 状态码。
+     */
+    private int errorStatus(Object body) {
+        if (body instanceof Map<?, ?> map && map.get("status") instanceof Integer status
+                && status >= 400 && status <= 599) {
+            return status;
+        }
+        return HttpStatus.INTERNAL_SERVER_ERROR.value();
+    }
+
+    /**
+     * 从 Spring Boot 错误页响应体里取提示信息。
+     */
+    private String errorMessage(Object body) {
+        if (body instanceof Map<?, ?> map) {
+            Object detail = map.get("message");
+            if (detail != null) {
+                String text = String.valueOf(detail);
+                // 直接访问 /error 时 Spring 会给占位信息，跳过
+                if (!text.isBlank() && !"None".equalsIgnoreCase(text)
+                        && !"No message available".equalsIgnoreCase(text)) {
+                    return text;
+                }
+            }
+            Object error = map.get("error");
+            if (error != null) {
+                String text = String.valueOf(error);
+                if (!text.isBlank() && !"None".equalsIgnoreCase(text)
+                        && !"No message available".equalsIgnoreCase(text)) {
+                    return text;
+                }
+            }
+        }
+        return ResultCode.INTERNAL_ERROR.getMessage();
     }
 }

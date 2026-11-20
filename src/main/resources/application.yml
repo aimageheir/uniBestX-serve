@@ -8,6 +8,22 @@ spring:
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
 
+# 接口文档
+# - 文档源（Apifox URL 导入）：http://localhost:8094/v3/api-docs
+# - 备用查看（Swagger UI）：http://localhost:8094/swagger-ui.html
+springdoc:
+  packages-to-scan: com.unibestx.serve.controller
+  # 字段顺序固定，方便 Apifox 定时导入时对比差异
+  writer-with-order-by-keys: true
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
   configuration:
@@ -16,3 +32,7 @@ mybatis-plus:
     banner: false
     db-config:
       id-type: auto
+      # 逻辑删除：deleted = 1 表示已删除，0 表示未删除
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0

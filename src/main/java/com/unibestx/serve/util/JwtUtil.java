@@ -27,11 +27,21 @@ public final class JwtUtil {
                 .sign();
     }
 
+    /**
+     * 校验 token 的签名。
+     * <p>
+     * 畸形 token（格式不合法）在 Hutool 解析阶段就会抛异常，这里统一按校验失败处理，
+     * 避免异常从过滤器抛出后转发到 /error。
+     */
     public static boolean verify(String token, String secret) {
         if (token == null || token.isBlank()) {
             return false;
         }
-        return JWT.of(token).setKey(secret.getBytes(StandardCharsets.UTF_8)).verify();
+        try {
+            return JWT.of(token).setKey(secret.getBytes(StandardCharsets.UTF_8)).verify();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static Long getUserId(String token) {

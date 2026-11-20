@@ -1,6 +1,6 @@
 package com.unibestx.serve.service.impl;
 
-import com.unibestx.serve.entity.User;
+import com.unibestx.serve.entity.SysUser;
 import com.unibestx.serve.exception.BusinessException;
 import com.unibestx.serve.mapper.UserMapper;
 import com.unibestx.serve.service.UserService;
@@ -21,8 +21,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getById(Long id) {
-        User user = findById(id);
+    public SysUser getById(Long id) {
+        SysUser user = findById(id);
         if (user == null) {
             throw new BusinessException(404, "用户不存在");
         }
@@ -30,22 +30,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(Long id) {
+    public SysUser findById(Long id) {
         return userMapper.selectUserById(id);
     }
 
     @Override
-    public List<User> list(String username) {
+    public List<SysUser> list(String username) {
         return userMapper.selectUserList(username);
     }
 
     @Override
-    public User create(User user) {
+    public SysUser create(SysUser user) {
         return insertWithEncodedPassword(user);
     }
 
     @Override
-    public User register(User user) {
+    public SysUser register(SysUser user) {
         if (isBlank(user.getUsername()) || isBlank(user.getPassword())) {
             throw new BusinessException(400, "用户名和密码不能为空");
         }
@@ -53,11 +53,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User login(String username, String password) {
+    public SysUser login(String username, String password) {
         if (isBlank(username) || isBlank(password)) {
-            throw new BusinessException(401, "用户名或密码错误");
+            throw new BusinessException(401, "用户名和密码不能为空");
         }
-        User user = userMapper.selectByUsername(username);
+        SysUser user = userMapper.selectByUsername(username);
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new BusinessException(401, "用户名或密码错误");
         }
@@ -65,8 +65,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(User user) {
-        User existing = userMapper.selectUserById(user.getId());
+    public SysUser update(SysUser user) {
+        SysUser existing = userMapper.selectUserById(user.getId());
         if (existing == null) {
             throw new BusinessException(404, "用户不存在");
         }
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.deleteUserById(id) > 0;
     }
 
-    private User insertWithEncodedPassword(User user) {
+    private SysUser insertWithEncodedPassword(SysUser user) {
         if (userMapper.selectByUsername(user.getUsername()) != null) {
             throw new BusinessException(400, "用户名已存在");
         }

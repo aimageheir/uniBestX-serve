@@ -5,7 +5,7 @@ import com.unibestx.serve.convert.UserConvert;
 import com.unibestx.serve.dto.LoginDTO;
 import com.unibestx.serve.dto.RefreshTokenDTO;
 import com.unibestx.serve.dto.UserCreateDTO;
-import com.unibestx.serve.entity.User;
+import com.unibestx.serve.entity.SysUser;
 import com.unibestx.serve.exception.BusinessException;
 import com.unibestx.serve.result.ResultCode;
 import com.unibestx.serve.service.TokenService;
@@ -13,11 +13,14 @@ import com.unibestx.serve.service.UserService;
 import com.unibestx.serve.util.JwtUtil;
 import com.unibestx.serve.vo.LoginVO;
 import com.unibestx.serve.vo.UserVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "认证", description = "注册、登录、刷新令牌、退出登录")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -30,34 +33,38 @@ public class AuthController {
         this.tokenService = tokenService;
     }
 
+    @Operation(summary = "注册")
     @PostMapping("/register")
     public UserVO register(@RequestBody UserCreateDTO dto) {
-        User user = userService.register(UserConvert.toEntity(dto));
+        SysUser user = userService.register(UserConvert.toEntity(dto));
         return UserConvert.toVO(user);
     }
 
+    @Operation(summary = "登录", description = "返回 accessToken 和 refreshToken")
     @PostMapping("/login")
     public LoginVO login(@RequestBody LoginDTO dto) {
-        User user = userService.login(dto.getUsername(), dto.getPassword());
+        SysUser user = userService.login(dto.getUsername(), dto.getPassword());
         return issueTokens(user);
     }
 
+    @Operation(summary = "刷新令牌")
     @PostMapping("/refresh")
     public LoginVO refresh(@RequestBody RefreshTokenDTO dto) {
         Long userId = tokenService.consumeRefreshToken(dto.getRefreshToken());
-        User user = userId == null ? null : userService.findById(userId);
+        SysUser user = userId == null ? null : userService.findById(userId);
         if (user == null) {
             throw new BusinessException(ResultCode.UNAUTHORIZED.getCode(), "登录已过期，请重新登录");
         }
         return issueTokens(user);
     }
 
+    @Operation(summary = "退出登录", description = "使 refreshToken 失效")
     @PostMapping("/logout")
     public void logout(@RequestBody RefreshTokenDTO dto) {
         tokenService.revoke(dto.getRefreshToken());
     }
 
-    private LoginVO issueTokens(User user) {
+    private LoginVO issueTokens(SysUser user) {
         LoginVO vo = new LoginVO();
         vo.setToken(JwtUtil.generate(user.getId()));
         vo.setRefreshToken(tokenService.issueRefreshToken(user.getId()));

@@ -6,11 +6,14 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -96,6 +99,37 @@ class GlobalResponseAdviceTest {
     }
 
     @Test
+    void convertsErrorPageToFailResult() {
+        Map<String, Object> errorBody = Map.of(
+                "timestamp", "2026-11-20 08:20:27",
+                "status", 500,
+                "error", "Internal Server Error",
+                "path", "/auth/login");
+
+        Object body = advice.beforeBodyWrite(errorBody, returnType("plain"),
+                MediaType.APPLICATION_JSON, null,
+                request("/error"), response);
+
+        assertThat(body).isInstanceOf(Result.class);
+        Result<?> result = (Result<?>) body;
+        assertThat(result.getCode()).isEqualTo(500);
+        assertThat(result.getMessage()).isEqualTo("Internal Server Error");
+        assertThat(result.getData()).isNull();
+        verify(response).setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Test
+    void leavesApiDocsUntouched() {
+        Map<String, Object> apiDocs = Map.of("openapi", "3.1.0");
+
+        Object body = advice.beforeBodyWrite(apiDocs, returnType("plain"),
+                MediaType.APPLICATION_JSON, null,
+                request("/v3/api-docs"), response);
+
+        assertThat(body).isSameAs(apiDocs);
+    }
+
+    @Test
     void skipsResourceReturnType() {
         assertThat(advice.supports(new MethodParameter(method("resource"), -1), null)).isFalse();
         assertThat(advice.supports(new MethodParameter(method("bytes"), -1), null)).isFalse();
@@ -104,6 +138,12 @@ class GlobalResponseAdviceTest {
 
     private MethodParameter returnType(String name) {
         return new MethodParameter(method(name), -1);
+    }
+
+    private ServerHttpRequest request(String path) {
+        ServerHttpRequest request = mock(ServerHttpRequest.class);
+        given(request.getURI()).willReturn(URI.create("http://localhost" + path));
+        return request;
     }
 
     private static java.lang.reflect.Method method(String name) {

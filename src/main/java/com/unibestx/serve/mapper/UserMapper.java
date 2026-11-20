@@ -1,22 +1,22 @@
 package com.unibestx.serve.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.unibestx.serve.entity.User;
+import com.unibestx.serve.entity.SysUser;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface UserMapper extends BaseMapper<User> {
+public interface UserMapper extends BaseMapper<SysUser> {
 
-    User selectUserById(@Param("id") Long id);
+    SysUser selectUserById(@Param("id") Long id);
 
-    User selectByUsername(@Param("username") String username);
+    SysUser selectByUsername(@Param("username") String username);
 
-    List<User> selectUserList(@Param("username") String username);
+    List<SysUser> selectUserList(@Param("username") String username);
 
-    int insertUser(User user);
+    int insertUser(SysUser user);
 
-    int updateUser(User user);
+    int updateUser(SysUser user);
 
     int deleteUserById(@Param("id") Long id);
 }

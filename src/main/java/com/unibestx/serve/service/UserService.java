@@ -1,24 +1,24 @@
 package com.unibestx.serve.service;
 
-import com.unibestx.serve.entity.User;
+import com.unibestx.serve.entity.SysUser;
 
 import java.util.List;
 
 public interface UserService {
 
-    User getById(Long id);
+    SysUser getById(Long id);
 
-    User findById(Long id);
+    SysUser findById(Long id);
 
-    List<User> list(String username);
+    List<SysUser> list(String username);
 
-    User create(User user);
+    SysUser create(SysUser user);
 
-    User register(User user);
+    SysUser register(SysUser user);
 
-    User login(String username, String password);
+    SysUser login(String username, String password);
 
-    User update(User user);
+    SysUser update(SysUser user);
 
     boolean delete(Long id);
 }

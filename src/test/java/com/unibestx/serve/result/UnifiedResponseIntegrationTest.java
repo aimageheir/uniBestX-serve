@@ -1,6 +1,6 @@
 package com.unibestx.serve.result;
 
-import com.unibestx.serve.entity.User;
+import com.unibestx.serve.entity.SysUser;
 import com.unibestx.serve.exception.BusinessException;
 import com.unibestx.serve.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,8 +140,8 @@ class UnifiedResponseIntegrationTest {
         }
 
         @GetMapping("/response-entity")
-        public org.springframework.http.ResponseEntity<User> responseEntity() {
-            User user = new User();
+        public org.springframework.http.ResponseEntity<SysUser> responseEntity() {
+            SysUser user = new SysUser();
             user.setId(1L);
             user.setUsername("张三");
             return org.springframework.http.ResponseEntity
@@ -152,8 +152,8 @@ class UnifiedResponseIntegrationTest {
         }
 
         @GetMapping("/response-entity-error")
-        public org.springframework.http.ResponseEntity<User> responseEntityError() {
-            User user = new User();
+        public org.springframework.http.ResponseEntity<SysUser> responseEntityError() {
+            SysUser user = new SysUser();
             user.setId(2L);
             user.setUsername("李四");
             return org.springframework.http.ResponseEntity
